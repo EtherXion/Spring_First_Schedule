@@ -5,7 +5,7 @@ gradlew
 .gradle/
 build/
 .idea/
-!gradle/wrapper/gradle-wrapper.jar
+gradle/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
