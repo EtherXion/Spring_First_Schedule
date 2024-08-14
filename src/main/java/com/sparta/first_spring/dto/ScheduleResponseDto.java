@@ -19,8 +19,8 @@ public class ScheduleResponseDto {
         this.time = schedule.getTime();
     }
 
-    public ScheduleResponseDto(int id, String todo, String manager, String date, String time){
-        this.id = id;
+    public ScheduleResponseDto(Long id, String todo, String manager, String date, String time){
+        this.id = Math.toIntExact(id);
         this.todo = todo;
         this.manager = manager;
         this.date = date;
