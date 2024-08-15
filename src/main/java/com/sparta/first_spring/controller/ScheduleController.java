@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,7 @@ public class ScheduleController {
                     ps.setString(1, requestDto.getTodo());
                     ps.setString(2, requestDto.getManager());
                     ps.setString(3, requestDto.getPassword());
+                    // schedule 파일들 고쳤는데 여긴 안고쳐도 되나?
                     ps.setTimestamp(4, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); // setAccessDate ? LocalDateTime.now 원래 그냥 requestDto.date()
                     ps.setTimestamp(5, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); // 현재 시간?
                     return ps;
@@ -51,7 +53,7 @@ public class ScheduleController {
 
         return scheduleResponseDto;
 
-        // 데이터를 반환받을 때 시간이 이상하게 뜨는데 조회하면 재시간으로 잘 뜸...
+        // 뭔가 반환도 잘 되는군 이제
 
     }
 
@@ -112,7 +114,8 @@ public class ScheduleController {
         if (schedule != null){
             // 일정 내용 수정
             String sql = "UPDATE schedule_table SET todo = ?, manager = ?, modify_date = ? WHERE id = ?";
-            jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), requestDto.getModify_date(), id);
+            // requestDto.getModify_date() - > LocalDateTime.now() 변경 입력 안받고 바로 현재 시간으로 : 된 듯?
+            jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), LocalDateTime.now(), id);
 
             return id; // 반환? 위랑 똑같게는 안될 듯?
         } else {

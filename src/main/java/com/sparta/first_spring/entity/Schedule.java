@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.cglib.core.Local;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -24,13 +25,17 @@ public class Schedule {
         this.todo = requestDto.getTodo();
         this.manager = requestDto.getManager();
         this.password = requestDto.getPassword();
-        this.date = requestDto.getDate();
-        this.modify_date = requestDto.getModify_date();
+        this.date = Timestamp.valueOf(LocalDateTime.now()); // 아예 현재 시간 받아오도록
+        this.modify_date = Timestamp.valueOf(LocalDateTime.now());
     }
 
     public void update(ScheduleRequestDto requestDto) {
         this.todo = requestDto.getTodo();
         this.manager = requestDto.getManager();
+
+        // 바꾸면서 추가된 부분
+        this.modify_date = Timestamp.valueOf(LocalDateTime.now());
+
         // 수정일로 바뀌려면 date time 도 필요?
     }
 
