@@ -74,6 +74,35 @@ public class ScheduleController {
         });
     }
 
+    @GetMapping("/schedule/{id}")
+    public ScheduleResponseDto getSchedules_id(@PathVariable Long id) { // 인텔리제이 자동 처리로 변경되서 왜 된건지를 모름 지금
+        // queryForObject 는 단일만 받아오니까 리스트가 아니라 단일 객체인 듯?
+        // id 있는지 확인 하려면 받아야 하니까?
+
+        // 해당 일정이 존재하는지
+        Schedule schedule = findById(id);
+
+        if (schedule != null) {
+            // 아마 SQL 문에서 id를 기준으로 찾아야 할 듯?
+            String sql = "SELECT * FROM schedule_table WHERE id = ? ";
+
+            return jdbcTemplate.queryForObject(sql,new RowMapper<ScheduleResponseDto>() {
+                @Override
+                public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    // SQL 결과로 받아온 데이터 ScheduleResponseDto 타입으로 변환
+                    Long id = rs.getLong("id");
+                    String todo = rs.getString("todo");
+                    String manager = rs.getString("manager");
+                    Timestamp date = rs.getTimestamp("date"); // getTimestamp 종류가 여러개임
+                    String modify_date = rs.getString("modify_date");
+                    return new ScheduleResponseDto(id, todo, manager, date, modify_date);
+                }
+            }, id);
+        } else {
+            throw new IllegalArgumentException("Schedule not found");
+        }
+    }
+
     @PutMapping("/schedule/{id}")
     public Long updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
         // 해당 일정이 존재하는지
