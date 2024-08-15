@@ -81,7 +81,7 @@ public class ScheduleController {
         // queryForObject 는 단일만 받아오니까 리스트가 아니라 단일 객체인 듯?
         // id 있는지 확인 하려면 받아야 하니까?
 
-        // 해당 일정이 존재하는지
+        // 해당 일정이 존재하는지 id 찾아오는거
         Schedule schedule = findById(id);
 
         if (schedule != null) {
@@ -110,8 +110,18 @@ public class ScheduleController {
     public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
         // 반환 받으려면 ScheduleResponseDto 필요한 듯?
         // 해당 일정이 존재하는지
+        // 비밀번호가 동일해야 수정 가능한? 느낌인 거겠지 이해 잘못한게 아니면...
+
         Schedule schedule = findById(id);
+
+        // 조건문 여러개 쓰는게 맞나? 너무 어지럽게 만든 것 같은데
         if (schedule != null){
+
+            // 비밀번호 일치 확인 부분 일치하지 않으면 오류 처리 비어있으면 오류 처리 근데 왜 비어있다 뜨는거임
+            if (schedule.getPassword() == null || !schedule.getPassword().equals(requestDto.getPassword())) {
+                throw new IllegalArgumentException("Passwords don't match");
+            } // 뭔가 비밀번호가 null 어쩌고 하는데... DB에 저장은 되고 있음
+
             // 일정 내용 수정
             String sql = "UPDATE schedule_table SET todo = ?, manager = ?, modify_date = ? WHERE id = ?";
             // requestDto.getModify_date() - > LocalDateTime.now() 변경 입력 안받고 바로 현재 시간으로 : 된 듯?
@@ -120,16 +130,25 @@ public class ScheduleController {
             ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(schedule);
 
             return scheduleResponseDto; // 반환? 위랑 똑같게는 안될 듯? 뭐지 갑자기 되는것 같은데
-            // 갑자기 id 가 0으로 반환되는데...
+            // 갑자기 id 가 0으로 반환되는데... 아니 뭔가 수정 시간 부분도 좀 이상한 것 같은데
         } else {
             throw new IllegalArgumentException("Schedule not found");
         }
     }
 
     @DeleteMapping("/schedule/{id}")
-    public Long deleteSchedule(@PathVariable Long id) {
+    public Long deleteSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
+        // @RequestBody HTTP 요청의 본문 내용을 자바 객체로 변환
+        // 비밀번호 일치 관련으로 들고오긴 했는데 맞나?
+
         Schedule schedule = findById(id);
         if (schedule != null){
+
+            // 비밀번호 일치 확인 부분 일치하지 않으면 오류 처리 비어있으면 오류 처리 근데 왜 비어있다 뜨는거임
+            if (schedule.getPassword() == null || !schedule.getPassword().equals(requestDto.getPassword())) {
+                throw new IllegalArgumentException("Passwords don't match");
+            } // 뭔가 비밀번호가 null 어쩌고 하는데... DB에 저장은 되고 있음
+
             String sql = "DELETE FROM schedule_table WHERE id = ?";
             jdbcTemplate.update(sql, id);
 
@@ -147,6 +166,10 @@ public class ScheduleController {
                 Schedule schedule = new Schedule();
                 schedule.setTodo(resultSet.getString("todo"));
                 schedule.setManager(resultSet.getString("manager"));
+
+                // 여가에 비밀번호 설정 안해서 안되던 거였음... 오류로 안 알려줘서 찾는데 오래 걸림...
+                schedule.setPassword(resultSet.getString("password")); // 비밀번호 일치 null 문제로 임시로 추가
+
                 schedule.setDate(resultSet.getTimestamp("date")); // 여기도 getTimestamp
                 schedule.setModify_date(resultSet.getTimestamp("modify_date"));
                 return schedule;

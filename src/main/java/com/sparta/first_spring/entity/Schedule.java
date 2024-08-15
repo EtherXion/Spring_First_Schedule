@@ -33,7 +33,7 @@ public class Schedule {
         this.todo = requestDto.getTodo();
         this.manager = requestDto.getManager();
 
-        // 바꾸면서 추가된 부분
+        // 바꾸면서 추가된 부분 이거 없어도 되나?
         this.modify_date = Timestamp.valueOf(LocalDateTime.now());
 
         // 수정일로 바뀌려면 date time 도 필요?
