@@ -107,7 +107,7 @@ public class ScheduleController {
     }
 
     @PutMapping("/schedule/{id}")
-    public long updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
+    public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
         // 반환 받으려면 ScheduleResponseDto 필요한 듯?
         // 해당 일정이 존재하는지
         Schedule schedule = findById(id);
@@ -117,7 +117,10 @@ public class ScheduleController {
             // requestDto.getModify_date() - > LocalDateTime.now() 변경 입력 안받고 바로 현재 시간으로 : 된 듯?
             jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), LocalDateTime.now(), id);
 
-            return id; // 반환? 위랑 똑같게는 안될 듯?
+            ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(schedule);
+
+            return scheduleResponseDto; // 반환? 위랑 똑같게는 안될 듯? 뭐지 갑자기 되는것 같은데
+            // 갑자기 id 가 0으로 반환되는데...
         } else {
             throw new IllegalArgumentException("Schedule not found");
         }
