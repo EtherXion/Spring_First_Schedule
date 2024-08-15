@@ -16,7 +16,7 @@ public class Schedule {
     private String manager;
     private String password;
     private Timestamp date; // 시간 종류가 여럿인 듯
-    private String modify_date;
+    private Timestamp modify_date;
 
     public Schedule(ScheduleRequestDto requestDto) {
         this.todo = requestDto.getTodo();

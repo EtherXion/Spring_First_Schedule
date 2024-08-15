@@ -1,5 +1,6 @@
 package com.sparta.first_spring.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.first_spring.entity.Schedule;
 import lombok.Getter;
 
@@ -10,8 +11,12 @@ public class ScheduleResponseDto {
     private long id;
     private String todo;
     private String manager;
+
+    // @JsonFormat 로 형식? 비꿔주거나 선언을 LocalDateTime 로 하거나?
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Timestamp date;
-    private String modify_date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Timestamp modify_date;
 
     public ScheduleResponseDto(Schedule schedule){
         this.id = schedule.getId();
@@ -21,7 +26,7 @@ public class ScheduleResponseDto {
         this.modify_date = schedule.getModify_date();
     }
 
-    public ScheduleResponseDto(Long id, String todo, String manager, Timestamp date, String modify_date){
+    public ScheduleResponseDto(Long id, String todo, String manager, Timestamp date, Timestamp modify_date){
         this.id = Math.toIntExact(id);
         this.todo = todo;
         this.manager = manager;

@@ -30,28 +30,29 @@ public class ScheduleController {
 
         KeyHolder keyHolder = new GeneratedKeyHolder(); // 기본키를 반환받기 위한 객체
 
-        String sql = "INSERT INTO schedule_table (id, todo, manager, password, date, modify_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO schedule_table (todo, manager, password, date, modify_date) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update( con ->  {
                     PreparedStatement ps = con.prepareStatement(sql,
                             Statement.RETURN_GENERATED_KEYS);
 
-                    ps.setLong(1, schedule.getId()); // 여기 int 로 바꾸면 될 듯?
-                    ps.setString(2, requestDto.getTodo());
-                    ps.setString(3, requestDto.getManager());
-                    ps.setString(4, requestDto.getPassword());
-                    ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now())); // setAccessDate ? LocalDateTime.now 원래 그냥 requestDto.date()
-                    ps.setString(6, requestDto.getModify_date());
+                    ps.setString(1, requestDto.getTodo());
+                    ps.setString(2, requestDto.getManager());
+                    ps.setString(3, requestDto.getPassword());
+                    ps.setTimestamp(4, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); // setAccessDate ? LocalDateTime.now 원래 그냥 requestDto.date()
+                    ps.setTimestamp(5, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); // 현재 시간?
                     return ps;
                 },
                 keyHolder);
 
         // DB Insert 후 받아온 기본키 확인
         Long id = keyHolder.getKey().longValue();
-        schedule.setId(Math.toIntExact(id)); // 나중에 id DB int에서 long으로 고치면 바꿀 것
+        schedule.setId(Math.toIntExact(id));
 
         ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(schedule);
 
         return scheduleResponseDto;
+
+        // 데이터를 반환받을 때 시간이 이상하게 뜨는데 조회하면 재시간으로 잘 뜸...
 
     }
 
@@ -68,7 +69,7 @@ public class ScheduleController {
                 String todo = rs.getString("todo");
                 String manager = rs.getString("manager");
                 Timestamp date = rs.getTimestamp("date"); // getTimestamp 종류가 여러개임
-                String modify_date = rs.getString("modify_date");
+                Timestamp modify_date = rs.getTimestamp("modify_date");
                 return new ScheduleResponseDto(id, todo, manager, date, modify_date);
             }
         });
@@ -94,7 +95,7 @@ public class ScheduleController {
                     String todo = rs.getString("todo");
                     String manager = rs.getString("manager");
                     Timestamp date = rs.getTimestamp("date"); // getTimestamp 종류가 여러개임
-                    String modify_date = rs.getString("modify_date");
+                    Timestamp modify_date = rs.getTimestamp("modify_date");
                     return new ScheduleResponseDto(id, todo, manager, date, modify_date);
                 }
             }, id);
@@ -140,7 +141,7 @@ public class ScheduleController {
                 schedule.setTodo(resultSet.getString("todo"));
                 schedule.setManager(resultSet.getString("manager"));
                 schedule.setDate(resultSet.getTimestamp("date")); // 여기도 getTimestamp
-                schedule.setModify_date(resultSet.getString("modify_date"));
+                schedule.setModify_date(resultSet.getTimestamp("modify_date"));
                 return schedule;
             } else {
                 return null;
