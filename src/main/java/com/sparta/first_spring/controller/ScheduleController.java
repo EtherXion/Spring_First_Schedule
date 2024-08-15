@@ -10,7 +10,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -59,7 +58,7 @@ public class ScheduleController {
     @GetMapping("/schedule")
     public List<ScheduleResponseDto> getSchedules() {
 
-        String sql = "SELECT * FROM schedule_table";
+        String sql = "SELECT * FROM schedule_table ORDER BY modify_date DESC";
 
         return jdbcTemplate.query(sql, new RowMapper<ScheduleResponseDto>() {
             @Override
@@ -94,6 +93,7 @@ public class ScheduleController {
                     Long id = rs.getLong("id");
                     String todo = rs.getString("todo");
                     String manager = rs.getString("manager");
+                    // 입력일은 직접 입력 받는게 아니라 자동으로 생성되야 하는거 아닌가?
                     Timestamp date = rs.getTimestamp("date"); // getTimestamp 종류가 여러개임
                     Timestamp modify_date = rs.getTimestamp("modify_date");
                     return new ScheduleResponseDto(id, todo, manager, date, modify_date);
@@ -105,15 +105,16 @@ public class ScheduleController {
     }
 
     @PutMapping("/schedule/{id}")
-    public Long updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
+    public long updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
+        // 반환 받으려면 ScheduleResponseDto 필요한 듯?
         // 해당 일정이 존재하는지
         Schedule schedule = findById(id);
         if (schedule != null){
             // 일정 내용 수정
-            String sql = "UPDATE schedule_table SET todo = ?, manager = ?, date = ?, modify_date = ? WHERE id = ?";
-            jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), requestDto.getDate(), requestDto.getModify_date(), id);
+            String sql = "UPDATE schedule_table SET todo = ?, manager = ?, modify_date = ? WHERE id = ?";
+            jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), requestDto.getModify_date(), id);
 
-            return id;
+            return id; // 반환? 위랑 똑같게는 안될 듯?
         } else {
             throw new IllegalArgumentException("Schedule not found");
         }
