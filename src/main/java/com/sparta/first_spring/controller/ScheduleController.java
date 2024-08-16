@@ -66,6 +66,8 @@ public class ScheduleController {
             @Override
             public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 // SQL 결과로 받아온 데이터 ScheduleResponseDto 타입으로 변환
+                // 혹시 여기서 수정일 , 담당자명 두개만 보여줘야 하는건가..? 조건으로..?
+                // 일정 목록 전부 보여주는 거니 특정 몇개만 보여주는건 아닐거고..?
                 Long id = rs.getLong("id");
                 String todo = rs.getString("todo");
                 String manager = rs.getString("manager");
@@ -131,6 +133,8 @@ public class ScheduleController {
 
             return scheduleResponseDto; // 반환? 위랑 똑같게는 안될 듯? 뭐지 갑자기 되는것 같은데
             // 갑자기 id 가 0으로 반환되는데... 아니 뭔가 수정 시간 부분도 좀 이상한 것 같은데
+            // 반환되는 스캐줄이 수정되기 전 스캐줄임...
+
         } else {
             throw new IllegalArgumentException("Schedule not found");
         }
@@ -148,6 +152,7 @@ public class ScheduleController {
             if (schedule.getPassword() == null || !schedule.getPassword().equals(requestDto.getPassword())) {
                 throw new IllegalArgumentException("Passwords don't match");
             } // 뭔가 비밀번호가 null 어쩌고 하는데... DB에 저장은 되고 있음
+            // findById 에 password 가 없어서 난 문제였음
 
             String sql = "DELETE FROM schedule_table WHERE id = ?";
             jdbcTemplate.update(sql, id);
@@ -164,6 +169,10 @@ public class ScheduleController {
         return jdbcTemplate.query(sql, resultSet ->{
             if (resultSet.next()){
                 Schedule schedule = new Schedule();
+
+                // 여기서 id 도 set 해주면 수정 반환 부분에서 id까지 반환되려나..?
+                schedule.setId(resultSet.getLong("id")); // 넣으니까 반환 됨
+
                 schedule.setTodo(resultSet.getString("todo"));
                 schedule.setManager(resultSet.getString("manager"));
 
