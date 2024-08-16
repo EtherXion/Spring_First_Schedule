@@ -129,11 +129,14 @@ public class ScheduleController {
             // requestDto.getModify_date() - > LocalDateTime.now() 변경 입력 안받고 바로 현재 시간으로 : 된 듯?
             jdbcTemplate.update(sql, requestDto.getTodo(), requestDto.getManager(), LocalDateTime.now(), id);
 
-            ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(schedule);
+            // findById 한번 더 하면 되나?
+            Schedule updateSchedule = findById(id);
+
+            ScheduleResponseDto scheduleResponseDto = new ScheduleResponseDto(updateSchedule); // findById 새로 한거 받아옴
 
             return scheduleResponseDto; // 반환? 위랑 똑같게는 안될 듯? 뭐지 갑자기 되는것 같은데
             // 갑자기 id 가 0으로 반환되는데... 아니 뭔가 수정 시간 부분도 좀 이상한 것 같은데
-            // 반환되는 스캐줄이 수정되기 전 스캐줄임...
+            // 반환되는 스캐줄이 수정되기 전 스캐줄임... findById로 다시 받아오니 되긴 함 근데 다른 방법은 없나
 
         } else {
             throw new IllegalArgumentException("Schedule not found");
